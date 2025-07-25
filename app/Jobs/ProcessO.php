@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Order;
 
 class ProcessO implements ShouldQueue
 {
@@ -33,20 +34,18 @@ class ProcessO implements ShouldQueue
      */
     public function handle()
     {
-        \Log::info('Running job for user: ' . $this->orderId);
+        // Find the order by ID
         $order = Order::find($this->orderId);
-        \Log::info('Running job for user: ' . $order);
+
         if (!$order) {
-            \Log::warning("Order not found: {$this->orderId}");
+            \Log::warning("Order not found for ID: {$this->orderId}");
             return;
         }
 
+        // Update the order status
         $order->status = 'processed';
-
-        // Save changes
         $order->save();
 
-        // Log success
-        \Log::info("Order #{$this->orderId} processed successfully.");
+        \Log::info("Order {$this->orderId} processed successfully.");
     }
 }
